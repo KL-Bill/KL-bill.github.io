@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Ken Lloyd Billones, backend and cloud developer from Tagum City, Philippines.">
+<title>Ken Lloyd Billones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: a film. A scroll-played trailer over a low-poly mountain flyover that ends on the name reveal, a title-card case study, the record, selected work, toolkit as end credits, and a final card. Single committed dark look with an orange/teal grade. */
+:root {
+  color-scheme: dark;
+  --night: #08101c;
+  --night-2: #0e1a2b;
+  --panel: #111f33;
+  --haze: #7fb8c9;
+  --dusk: #f2a541;
+  --ember: #e0663a;
+  --text: #eef2f5;
+  --text-soft: #9fb0bf;
+  --text-dim: #5f7284;
+  --rule: rgba(127, 184, 201, 0.18);
+  --bar: #000000;
+  --display: 'Big Shoulders Display', Impact, 'Arial Narrow', sans-serif;
+  --body: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --s-0: 1.0625rem;
+  --s-1: 1.375rem;
+  --s-2: clamp(1.9rem, 3.6vw, 2.75rem);
+  --s-3: clamp(2.6rem, 6vw, 5rem);
+  --s-4: clamp(3.6rem, 13vw, 11.5rem);
+}
+* { box-sizing: border-box; }
+html { background: var(--night); scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--night); color: var(--text); font: 400 var(--s-0)/1.6 var(--body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 900; line-height: .92; letter-spacing: -.005em; text-wrap: balance; }
+p { margin: 0 0 1rem; }
+a { color: var(--dusk); text-underline-offset: 4px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--dusk); outline-offset: 4px; border-radius: 2px; }
+.wrap { width: min(1180px, 100% - 32px); margin-inline: auto; }
+
+/* film grain over everything */
+.grain { position: fixed; inset: -50%; z-index: 50; pointer-events: none; opacity: .07;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1s steps(6) infinite; }
+@keyframes grain { 0%{transform:translate(0,0)} 20%{transform:translate(-3%,2%)} 40%{transform:translate(2%,-3%)} 60%{transform:translate(-2%,-1%)} 80%{transform:translate(3%,3%)} 100%{transform:translate(0,0)} }
+@media (prefers-reduced-motion: reduce) { .grain { animation: none; } }
+
+/* ---------- Trailer: scroll plays the shots, the name is the last one ---------- */
+.trailer { position: relative; height: 1100svh; }
+.stage { position: sticky; top: 0; height: 100svh; min-height: 520px; overflow: hidden; background: var(--night); }
+.sky, .sky-dusk { position: absolute; inset: 0; }
+.sky { background: linear-gradient(180deg, #03070d 0%, #0a1422 50%, #172740 60%, #0b1220 100%); }
+.sky-dusk { opacity: 0; background:
+  radial-gradient(30% 20% at 50% 58%, rgba(255,230,180,1), rgba(242,165,65,.6) 35%, rgba(224,102,58,0) 75%),
+  linear-gradient(180deg, #0a1324 0%, #26324c 32%, #8a4f45 50%, #e58b45 58%, #3a2630 75%, #1a1622 100%); }
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(3,6,12,.82) 100%); }
+.bar { position: absolute; left: 0; right: 0; height: 9svh; min-height: 44px; background: var(--bar); z-index: 3; display: flex; align-items: center; }
+.bar.top { top: 0; } .bar.bottom { bottom: 0; }
+.bar .wrap { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.mark { font-family: var(--display); font-weight: 700; font-size: 1.25rem; color: var(--text); text-decoration: none; letter-spacing: .02em; }
+.skip { color: var(--text-soft); font-size: .9375rem; font-weight: 500; text-decoration: none; }
+.skip:hover { color: var(--dusk); }
+.hint { color: var(--text-dim); font-size: .875rem; }
+.timecode { color: var(--text-soft); font-size: .875rem; font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+.timecode b { color: var(--ember); font-weight: 600; margin-right: .5rem; }
+.progress { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--dusk); transform-origin: left; transform: scaleX(0); }
+
+.shot { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; text-align: center; padding: 12svh 16px; pointer-events: none; opacity: 0; will-change: opacity, transform, filter; }
+.shot.first { opacity: 1; }
+.shot h2 { font-size: clamp(2.5rem, 7.2vw, 6.2rem); font-weight: 900; text-transform: uppercase; line-height: .92; max-width: 15ch; margin-inline: auto; text-shadow: 0 4px 40px rgba(0,0,0,.6); }
+.shot p { margin: 1.5rem auto 0; max-width: 40ch; font-size: var(--s-1); line-height: 1.45; color: var(--text-soft); text-shadow: 0 2px 20px rgba(0,0,0,.8); }
+.shot .em { color: var(--dusk); }
+.shot.reveal .who { color: var(--haze); font-size: var(--s-0); letter-spacing: .04em; margin: 0 auto 1.2rem; }
+.shot.reveal h1 { font-size: var(--s-4); font-weight: 900; text-transform: uppercase; line-height: .84; color: var(--text); text-shadow: 0 6px 60px rgba(242,165,65,.35); }
+.shot.reveal h1 span { display: block; }
+.shot.reveal .role { margin-top: 1.4rem; font-size: var(--s-1); color: var(--text); }
+.shot.reveal .role b { color: var(--dusk); font-weight: 600; }
+.cue { display: inline-block; margin-top: 2.2rem; color: var(--text); font-size: .9375rem; font-weight: 600; pointer-events: auto; }
+@media (max-width: 520px) { .hint { display: none; } }
+
+/* ---------- Title card case study ---------- */
+.feature { position: relative; padding-block: clamp(5rem, 12vw, 9rem); border-top: 1px solid var(--rule); overflow: hidden; }
+.feature::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 50% at 85% 0%, rgba(242,165,65,.14), transparent 70%), radial-gradient(50% 60% at 0% 100%, rgba(127,184,201,.10), transparent 70%); }
+.feature .wrap { position: relative; }
+.reel { color: var(--haze); font-size: .9375rem; margin-bottom: 1.25rem; }
+.feature h2 { font-size: var(--s-3); text-transform: uppercase; max-width: 14ch; }
+.feature .lede { margin-top: 1.75rem; font-size: var(--s-1); line-height: 1.5; color: var(--text-soft); max-width: 52ch; }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: clamp(3rem, 7vw, 5rem); border-top: 1px solid var(--rule); }
+.fact { padding: 2rem 2rem 0 0; min-width: 0; }
+.fact + .fact { padding-left: 2rem; border-left: 1px solid var(--rule); }
+.fact strong { display: block; font-family: var(--display); font-weight: 900; font-size: clamp(2.6rem, 5vw, 4.2rem); line-height: .9; color: var(--dusk); font-variant-numeric: tabular-nums; }
+.fact span { display: block; margin-top: .8rem; color: var(--text-soft); max-width: 30ch; }
+.stack { list-style: none; padding: 0; margin: 2.5rem 0 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+.stack li { font-size: .8125rem; padding: .25rem .7rem; border: 1px solid var(--rule); border-radius: 999px; color: var(--text-soft); }
+
+/* ---------- The record ---------- */
+.section { padding-block: clamp(5rem, 11vw, 8rem); border-top: 1px solid var(--rule); }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+.section-head h2 { font-size: var(--s-3); text-transform: uppercase; }
+.section-head p { color: var(--text-dim); margin: 0; }
+.record { list-style: none; margin: 0; padding: 0; }
+.record > li { display: grid; grid-template-columns: 11rem 1fr; gap: 2.5rem; padding-block: 2.25rem; border-top: 1px solid var(--rule); }
+.record > li > * { min-width: 0; }
+.record > li:first-child { border-top: 0; padding-top: 0; }
+.years { font-family: var(--display); font-weight: 700; font-size: 1.5rem; color: var(--haze); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.record h3 { font-size: var(--s-2); }
+.org { color: var(--text-soft); margin: .4rem 0 1rem; }
+.record ul { margin: 0; padding-left: 1.1rem; color: var(--text-soft); max-width: 68ch; }
+.record ul li { margin-bottom: .55rem; }
+.record ul li::marker { color: var(--dusk); }
+
+/* ---------- Selected work ---------- */
+.work { list-style: none; margin: 0; padding: 0; }
+.work > li { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem 3rem; padding-block: 1.9rem; border-top: 1px solid var(--rule); position: relative; }
+.work > li::before { content: ''; position: absolute; left: 0; top: -1px; height: 1px; width: 0; background: var(--dusk); transition: width .6s cubic-bezier(.2,.6,.2,1); }
+.work > li:hover::before { width: 100%; }
+.work h3 { font-size: var(--s-2); text-transform: uppercase; transition: color .3s; }
+.work > li:hover h3 { color: var(--dusk); }
+.work .where { color: var(--haze); font-size: .9375rem; margin: .5rem 0 0; }
+.work .what p { color: var(--text-soft); margin-bottom: .9rem; }
+.work .stack { margin: 0; }
+.work .screen { grid-column: 1 / -1; margin: .8rem 0 0; aspect-ratio: 16 / 9; max-width: 100%; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: var(--night-2); box-shadow: 0 40px 90px -40px rgba(0,0,0,.9); }
+.work .screen img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; transition: transform 1.2s cubic-bezier(.2,.6,.2,1); }
+.work > li:hover .screen img { transform: scale(1.025); }
+@media (prefers-reduced-motion: reduce) { .work .screen img { transition: none; } }
+.demo { display: inline-block; margin-top: 1rem; font-weight: 600; }
+.tag { display: inline-block; margin-left: .6rem; vertical-align: middle; font: 600 .75rem var(--body); color: var(--night); background: var(--dusk); padding: .15rem .55rem; border-radius: 999px; letter-spacing: 0; }
+
+/* ---------- End credits ---------- */
+.credits { padding-block: clamp(6rem, 14vw, 10rem); text-align: center; border-top: 1px solid var(--rule); }
+.credits h2 { font-size: var(--s-2); text-transform: uppercase; color: var(--text-soft); margin-bottom: 3rem; letter-spacing: .08em; font-weight: 700; }
+.credits dl { margin: 0 auto; display: grid; gap: 1.6rem; max-width: 760px; }
+.credits dl > div { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: baseline; }
+.credits dt { text-align: right; color: var(--text-dim); font-size: .9375rem; }
+.credits dd { margin: 0; text-align: left; font-family: var(--display); font-weight: 700; font-size: 1.5rem; line-height: 1.25; }
+.credits .edu { margin-top: 4rem; color: var(--text-soft); }
+
+/* ---------- Final card ---------- */
+.final { position: relative; padding-block: clamp(7rem, 16vw, 12rem) 3rem; overflow: hidden; border-top: 1px solid var(--rule);
+  background: radial-gradient(80% 70% at 50% 120%, rgba(224,102,58,.35), rgba(242,165,65,.10) 45%, transparent 75%), var(--night); }
+.final .wrap { position: relative; }
+.next { color: var(--haze); margin-bottom: 1.25rem; }
+.final h2 { font-size: var(--s-3); text-transform: uppercase; max-width: 15ch; }
+.final h2 em { font-style: normal; color: var(--dusk); }
+.final .lede { margin-top: 1.75rem; font-size: var(--s-1); line-height: 1.5; color: var(--text-soft); max-width: 46ch; }
+.contact { margin-top: clamp(4rem, 9vw, 6rem); padding-top: 2.5rem; border-top: 1px solid var(--rule); display: grid; gap: 1.5rem; }
+.contact p { margin: 0; color: var(--text-soft); }
+.email-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.email { font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 4.6vw, 3.2rem); line-height: 1; color: var(--text); overflow-wrap: anywhere; min-width: 0; user-select: all; }
+.btn { font: 600 .9375rem var(--body); padding: .75rem 1.25rem; border-radius: 999px; border: 1px solid var(--dusk); background: var(--dusk); color: var(--night); cursor: pointer; }
+.btn:hover { background: #ffb95a; }
+.links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.75rem; }
+.links a { color: var(--text); font-weight: 600; }
+.fin { margin-top: 5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--text-dim); font-size: .875rem; }
+
+@media (max-width: 820px) {
+  .facts { grid-template-columns: 1fr; }
+  .fact, .fact + .fact { padding: 1.6rem 0; border-left: 0; }
+  .fact + .fact { border-top: 1px solid var(--rule); }
+  .record > li, .work > li { grid-template-columns: 1fr; gap: .6rem; }
+  .credits dl > div { grid-template-columns: 1fr; gap: .2rem; }
+  .credits dt, .credits dd { text-align: center; }
+}
+@media (max-width: 520px) {
+  .nav { gap: 1rem; }
+  .nav a[href="#record"] { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<header class="trailer" id="top" aria-label="Introduction">
+  <div class="stage" id="stage">
+    <div class="sky" aria-hidden="true"></div>
+    <div class="sky-dusk" id="dusk" aria-hidden="true"></div>
+    <canvas id="scene" aria-hidden="true"></canvas>
+
+    <div class="shot first">
+      <div>
+        <h2>Fresh out of university.</h2>
+        <p>Magna cum laude, 2023. First job: a junior developer at a global ship brokerage.</p>
+      </div>
+    </div>
+    <div class="shot">
+      <div>
+        <h2>They saw what he could do. <span class="em">So they handed him the hard ones.</span></h2>
+      </div>
+    </div>
+    <div class="shot">
+      <div>
+        <h2>First assignment: take the platform to Azure.</h2>
+        <p>Code, databases, blob storage and a CI/CD pipeline. It has run in production ever since.</p>
+      </div>
+    </div>
+    <div class="shot">
+      <div>
+        <h2>And document every step.</h2>
+        <p>A 60+ page guide, now the company&#8217;s engineering standard.</p>
+      </div>
+    </div>
+    <div class="shot">
+      <div>
+        <h2>Next: move every file off Cloudinary.</h2>
+        <p>All of it, into Azure Blob Storage.</p>
+      </div>
+    </div>
+    <div class="shot">
+      <div>
+        <h2>Then the big one: years of company data.</h2>
+        <p>Hundreds of thousands of records, out of a legacy RavenDB store and into PostgreSQL. Alone.</p>
+      </div>
+    </div>
+    <div class="shot">
+      <div>
+        <h2>Not <span class="em">one</span> record lost.</h2>
+      </div>
+    </div>
+    <div class="shot">
+      <div>
+        <h2>A junior trusted with the big ones. <span class="em">Every one delivered.</span></h2>
+      </div>
+    </div>
+    <div class="shot reveal">
+      <div>
+        <p class="who">Tagum City, Philippines</p>
+        <h1><span>Ken Lloyd</span><span>Billones</span></h1>
+        <p class="role">Backend &amp; cloud developer. <b>Future AAA game developer.</b></p>
+        <a class="cue" href="#feature">See the work</a>
+      </div>
+    </div>
+
+    <div class="bar top">
+      <div class="wrap">
+        <a class="mark" href="#top">KLB</a>
+        <a class="skip" href="#reveal">Skip intro</a>
+      </div>
+    </div>
+    <div class="bar bottom">
+      <div class="wrap">
+        <span class="hint" id="hint">Scroll to play</span>
+        <span class="timecode"><b>REC</b><span id="tc">00:00:00:00</span></span>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+  </div>
+  <div id="reveal" style="position:absolute;left:0;bottom:0;height:100svh;width:1px;pointer-events:none" aria-hidden="true"></div>
+</header>
+
+<main>
+<section class="feature" id="feature" aria-labelledby="feature-h">
+    <div class="wrap">
+      <p class="reel">Featured work, Simpson Spence Young</p>
+      <h2 id="feature-h">Taking a ship broker platform live on Azure</h2>
+      <p class="lede">The brokers needed to leave their old system for a new platform. I put it into production on Microsoft Azure, wrote the playbook the company now builds by, then moved its files and its data across.</p>
+      <div class="facts">
+        <div class="fact"><strong>100,000s</strong><span>of records moved from a legacy RavenDB 3.5 store into PostgreSQL, single-handed and accurate.</span></div>
+        <div class="fact"><strong>60+ pages</strong><span>of Azure deployment and CI/CD guidance, adopted company-wide as the engineering standard.</span></div>
+        <div class="fact"><strong>Live</strong><span>in production on Azure since launch, in daily use by the brokers who rely on it.</span></div>
+      </div>
+      <ul class="stack"><li>Node.js</li><li>TypeScript</li><li>React</li><li>PostgreSQL</li><li>Azure DevOps</li><li>Azure Blob Storage</li><li>REST APIs</li></ul>
+    </div>
+  </section>
+
+  <section class="section" id="record" aria-labelledby="record-h">
+    <div class="wrap">
+      <div class="section-head"><h2 id="record-h">The record</h2><p>2021 to now</p></div>
+      <ol class="record">
+        <li>
+          <p class="years">2023 – now</p>
+          <div>
+            <h3>Node.js Application Developer</h3>
+            <p class="org">Simpson Spence Young, global ship brokerage</p>
+            <ul>
+              <li>Took the ship broker platform from development to production on Microsoft Azure: code, databases, blob storage and a CI/CD pipeline.</li>
+              <li>Documented the whole setup in a 60+ page Azure deployment and CI/CD guide, now the company's standard engineering reference.</li>
+              <li>Migrated the platform's files from Cloudinary to Azure Blob Storage.</li>
+              <li>Migrated hundreds of thousands of records from RavenDB 3.5 to PostgreSQL, single-handed, safely and accurately.</li>
+              <li>Build backend features in Node.js and TypeScript, design REST APIs and PostgreSQL schemas, and ship full-stack work with React.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <p class="years">2021 – 2023</p>
+          <div>
+            <h3>Freelance Software Developer</h3>
+            <p class="org">Independent</p>
+            <ul>
+              <li>Delivered complete client systems end to end: a learning management system, a class management system and a medicine delivery app.</li>
+              <li>Built the backend for a smart parking system with real-time availability tracking.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <p class="years">2021 – 2022</p>
+          <div>
+            <h3>IT Consultant</h3>
+            <p class="org">H2-MED Business Enterprise</p>
+            <ul><li>Built and deployed Java business and point-of-sale systems used in daily commercial operations.</li></ul>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="work" aria-labelledby="work-h">
+    <div class="wrap">
+      <div class="section-head"><h2 id="work-h">Selected work</h2><p>Hospitals, clinics, shops and communities</p></div>
+      <ul class="work">
+        <li>
+          <div><h3>RX System</h3><p class="where">Tagum Medical City</p></div>
+          <div class="what"><p>Prescription generator and pharmacy demand tracker for a hospital, with a locked-down kiosk client for nursing stations.</p><ul class="stack"><li>Express</li><li>PostgreSQL</li><li>Podman</li><li>Electron</li></ul></div>
+          <figure class="screen"><img src="img/rx-system.jpg" alt="RX System new prescription screen with a live print preview" loading="lazy" width="1600" height="900"></figure>
+        </li>
+        <li>
+          <div><h3>Pharmacy POS</h3><p class="where">Community pharmacy</p></div>
+          <div class="what"><p>Offline Windows app for sales, inventory and dispensing records, shipped as one installer with its own bundled database.</p><ul class="stack"><li>Vue</li><li>Electron</li><li>Express</li><li>Prisma</li><li>PostgreSQL</li></ul></div>
+          <figure class="screen"><img src="img/pharmacy-pos.jpg" alt="Pharmacy POS checkout screen with barcode scanning and senior and PWD discounts" loading="lazy" width="1600" height="900"></figure>
+        </li>
+        <li>
+          <div><h3>Vetlink</h3><p class="where">Doc Ben&#8217;z Veterinary Clinic</p><a class="demo" href="https://vetlink-9x1g.onrender.com/" target="_blank" rel="noreferrer">View live site</a></div>
+          <div class="what"><p>Clinic system for appointments, pet records, reservations, chat and breed matching, with separate portals for pet owners and staff, plus an Android app for owners.</p><ul class="stack"><li>Express</li><li>Firestore</li><li>Android (Java)</li></ul></div>
+          <figure class="screen"><img src="img/vetlink.jpg" alt="Vetlink home page with client and employee portals" loading="lazy" width="1600" height="900"></figure>
+        </li>
+        <li>
+          <div><h3>VeggieTrack</h3><p class="where">Farm-to-market traceability</p></div>
+          <div class="what"><p>Follows each harvest from farmer to courier in batches, with QR codes and photo proof at every hand-off.</p><ul class="stack"><li>Express</li><li>Firebase</li></ul></div>
+        </li>
+        <li>
+          <div><h3>Therapy center system</h3><p class="where">Child therapy center</p></div>
+          <div class="what"><p>Enrolment, session requests, appointments, payroll and reports, with separate views for admin, secretary and cashier.</p><ul class="stack"><li>Express</li><li>Firebase</li></ul></div>
+        </li>
+        <li>
+          <div><h3>Learning management system</h3><p class="where">Freelance client</p></div>
+          <div class="what"><p>Teachers post activities and track each student’s progress; students submit work online, with uploaded documents converted to PDF for review.</p><ul class="stack"><li>Express</li><li>EJS</li><li>Prisma</li><li>Passport</li></ul></div>
+        </li>
+        <li>
+          <div><h3>Class management system</h3><p class="where">Freelance client</p></div>
+          <div class="what"><p>Runs a school’s classes, teachers, students, subjects, school years and grades from one admin panel.</p><ul class="stack"><li>Express</li><li>EJS</li><li>Prisma</li><li>Passport</li></ul></div>
+        </li>
+        <li>
+          <div><h3>Medicine delivery app</h3><p class="where">Freelance client</p></div>
+          <div class="what"><p>Online medicine ordering with carts, doctor consultations, pharmacists and delivery drivers, each with their own role.</p><ul class="stack"><li>Java</li><li>Spring Boot</li><li>MySQL</li></ul></div>
+        </li>
+        <li>
+          <div><h3>H2-MED POS &amp; business system</h3><p class="where">H2-MED Business Enterprise</p></div>
+          <div class="what"><p>A desktop point of sale with discounts, invoices and stock transfers between stores, plus a back-office system for inventory, branches, suppliers, expenses and sales reports.</p><ul class="stack"><li>Java</li><li>Swing</li><li>JasperReports</li></ul></div>
+        </li>
+        <li>
+          <div><h3>Bean Counter <span class="tag">In progress</span></h3><p class="where">Café POS product</p></div>
+          <div class="what"><p>Step-by-step ordering, recipes that deduct stock automatically, sales reports, staff PINs and cloud backup.</p><ul class="stack"><li>Node.js</li><li>PostgreSQL</li></ul></div>
+        </li>
+        <li>
+          <div><h3>Skill Quest</h3><p class="where">Teaching platform</p></div>
+          <div class="what"><p>The coding-practice platform I built to train developers in JavaScript: challenges, quizzes, sandboxed browser tests and instructor reviews.</p><ul class="stack"><li>Express</li><li>EJS</li><li>CodeMirror</li><li>Supabase</li></ul></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="credits" aria-labelledby="credits-h">
+    <div class="wrap">
+      <h2 id="credits-h">Toolkit</h2>
+      <dl>
+        <div><dt>Backend</dt><dd>Node.js, TypeScript, Express, Java, Spring</dd></div>
+        <div><dt>Frontend</dt><dd>React, Vue.js</dd></div>
+        <div><dt>Data</dt><dd>PostgreSQL, MySQL, Prisma, Firebase, Supabase</dd></div>
+        <div><dt>Cloud &amp; DevOps</dt><dd>Microsoft Azure, Azure DevOps CI/CD, Blob Storage, Git, Docker &amp; Podman</dd></div>
+        <div><dt>Desktop &amp; mobile</dt><dd>Electron, Android (Java)</dd></div>
+        <div><dt>3D</dt><dd>Modelling, rigging, animation</dd></div>
+      </dl>
+      <p class="edu">B.S. Information Technology, magna cum laude, University of Mindanao, 2023</p>
+    </div>
+  </section>
+
+  <section class="final" id="contact" aria-labelledby="final-h">
+    <div class="wrap">
+      <p class="next">The next chapter</p>
+      <h2 id="final-h">My goal is to be the first <em>AAA game developer</em> in the Philippines.</h2>
+      <p class="lede">Every production system I ship gets me closer. Until then, I'm building the backends, pipelines and platforms that teams depend on.</p>
+      <div class="contact">
+        <p>Open to remote backend and cloud roles.</p>
+        <div class="email-row">
+          <span class="email" id="email">billones.kenlloyd@gmail.com</span>
+          <button class="btn" id="copy" type="button">Copy email</button>
+        </div>
+        <ul class="links">
+          <li><a href="https://github.com/KL-bill" target="_blank" rel="noreferrer">GitHub</a></li>
+          <li><a href="https://github.com/KLschweizer23" target="_blank" rel="noreferrer">GitHub (earlier projects)</a></li>
+          <li><a href="https://www.linkedin.com/in/ken-lloyd-billones-5351b7240" target="_blank" rel="noreferrer">LinkedIn</a></li>
+        </ul>
+      </div>
+      <div class="fin"><span>Made in Tagum City, Davao del Norte</span><span>7.45° N, 125.81° E</span></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+
+  // Copy email
+  const btn = document.getElementById('copy');
+  btn.addEventListener('click', () => {
+    const el = document.getElementById('email');
+    const ok = () => { btn.textContent = 'Copied'; setTimeout(() => (btn.textContent = 'Copy email'), 1800); };
+    const fb = () => { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Press Ctrl+C'; };
+    try { navigator.clipboard.writeText(el.textContent).then(ok, fb); } catch (e) { fb(); }
+  });
+
+  // ---------- Trailer: scroll position drives the shots ----------
+  const trailer = document.querySelector('.trailer');
+  const shots = [...document.querySelectorAll('.shot')];
+  const LAST = shots.length - 1;
+  const dusk = document.getElementById('dusk'), tc = document.getElementById('tc'), bar = document.getElementById('progress');
+  const name = document.querySelector('.reveal h1'), hint = document.getElementById('hint');
+  let f = 0; // shot position, 0 .. LAST + hold
+
+  const update = () => {
+    const span = trailer.offsetHeight - innerHeight;
+    const P = clamp(-trailer.getBoundingClientRect().top / span, 0, 1);
+    f = P * (LAST + 0.7);
+    shots.forEach((el, i) => {
+      let o, d = f - i;
+      if (i === LAST) o = smooth(LAST - 0.45, LAST - 0.1, f);
+      else if (i === 0 && d < 0) o = 1;
+      else o = 1 - smooth(0.22, 0.48, Math.abs(d));
+      el.style.opacity = o;
+      if (i === LAST) {
+        const r = smooth(LAST - 0.45, LAST + 0.15, f);
+        name.style.letterSpacing = reduce ? '' : (0.28 * (1 - r) + 0.01) + 'em';
+        el.style.filter = reduce ? '' : `blur(${(1 - r) * 12}px)`;
+      } else if (!reduce) {
+        el.style.transform = `translateY(${-d * 40}px) scale(${1 + d * 0.04})`;
+        el.style.filter = `blur(${smooth(0.15, 0.48, Math.abs(d)) * 10}px)`;
+      }
+    });
+    dusk.style.opacity = smooth(2.6, LAST, f);
+    hint.textContent = f > LAST - 0.2 ? 'Scroll to continue' : 'Scroll to play';
+    bar.style.transform = `scaleX(${P})`;
+    const secs = P * 92, fr = Math.floor((secs % 1) * 24);
+    const pad = n => String(n).padStart(2, '0');
+    tc.textContent = `00:${pad(Math.floor(secs / 60))}:${pad(Math.floor(secs % 60))}:${pad(fr)}`;
+  };
+  addEventListener('scroll', update, { passive: true });
+  addEventListener('resize', update);
+  update();
+
+  // ---------- The flyover: low-poly mountains, night rising into dusk ----------
+  if (!window.THREE) return;
+  const canvas = document.getElementById('scene'), stage = document.getElementById('stage');
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const fogNight = new THREE.Color('#152338'), fogDusk = new THREE.Color('#b8704c');
+  scene.fog = new THREE.Fog(fogNight.clone(), 70, 330);
+  const camera = new THREE.PerspectiveCamera(52, 1, .1, 600);
+
+  const hemi = new THREE.HemisphereLight(0x7fb8c9, 0x120e18, .35); scene.add(hemi);
+  const key = new THREE.DirectionalLight(0xffb36b, .2); key.position.set(0, 25, -200); scene.add(key);
+  const moon = new THREE.DirectionalLight(0x6f9cc8, .55); moon.position.set(-60, 50, 40); scene.add(moon);
+
+  const perm = new Uint8Array(512); { const p = [...Array(256).keys()]; let s = 2026;
+    for (let i = 255; i > 0; i--) { s = (s * 16807) % 2147483647; const j = s % (i + 1); [p[i], p[j]] = [p[j], p[i]]; }
+    for (let i = 0; i < 512; i++) perm[i] = p[i & 255]; }
+  const fade = t => t * t * (3 - 2 * t), lerp = (a, b, t) => a + (b - a) * t;
+  const v2 = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), u = fade(x - xi), v = fade(y - yi);
+    const h = (a, b) => perm[perm[a & 255] + (b & 255)] / 255;
+    return lerp(lerp(h(xi, yi), h(xi + 1, yi), u), lerp(h(xi, yi + 1), h(xi + 1, yi + 1), u), v); };
+  const height = (x, z) => {
+    let a = 1, fq = .011, s = 0;
+    for (let o = 0; o < 4; o++) { s += a * v2(x * fq + 40, z * fq + 40); a *= .5; fq *= 2.07; }
+    s /= 1.875;
+    const peaks = Math.pow(Math.max(0, s - .3), 1.5) * 95;
+    const valley = Math.exp(-(x * x) / 1400) * 14; // a river valley for the camera to follow
+    return peaks - valley;
+  };
+
+  const narrow = innerWidth < 760;
+  const SEG = narrow ? 110 : 150, W = 520, D = 520;
+  const geo = new THREE.PlaneGeometry(W, D, SEG, SEG); geo.rotateX(-Math.PI / 2);
+  const pos = geo.attributes.position, base = Float32Array.from(pos.array);
+  const colors = new Float32Array(pos.count * 3); geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const cLow = new THREE.Color('#0d1a29'), cMid = new THREE.Color('#2a3a4c'), cHigh = new THREE.Color('#8a6250'), cPeak = new THREE.Color('#efc48e'), tmp = new THREE.Color();
+  const terrain = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: .95 }));
+  terrain.position.z = -150; scene.add(terrain);
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ color: 0x0b1726, roughness: .2, metalness: .7 }));
+  water.rotation.x = -Math.PI / 2; water.position.set(0, -3, -150); scene.add(water);
+
+  let travel = 0;
+  const rebuild = () => {
+    const a = pos.array;
+    for (let i = 0; i < pos.count; i++) {
+      const x = base[i * 3], z = base[i * 3 + 2], y = height(x, z - travel);
+      a[i * 3 + 1] = y;
+      const t = clamp((y + 3) / 48, 0, 1);
+      if (t < .3) tmp.copy(cLow).lerp(cMid, t / .3); else if (t < .72) tmp.copy(cMid).lerp(cHigh, (t - .3) / .42); else tmp.copy(cHigh).lerp(cPeak, (t - .72) / .28);
+      colors[i * 3] = tmp.r; colors[i * 3 + 1] = tmp.g; colors[i * 3 + 2] = tmp.b;
+    }
+    pos.needsUpdate = true; geo.attributes.color.needsUpdate = true;
+  };
+
+  const size = () => { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); };
+  size(); new ResizeObserver(size).observe(stage);
+
+  let visible = true, last = 0, sm = 0;
+  new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(stage);
+  const frame = now => {
+    requestAnimationFrame(frame);
+    if (!visible || now - last < 1000 / 36) return;
+    const dt = last ? Math.min(.1, (now - last) / 1000) : 0; last = now;
+    sm += (f - sm) * (reduce ? 1 : .08); // ease the camera toward the scroll position
+    const k = smooth(0, LAST, sm), lit = smooth(2.6, LAST, sm);
+    travel += dt * (reduce ? 0 : 9 + k * 10);
+    rebuild();
+    scene.fog.color.copy(fogNight).lerp(fogDusk, lit);
+    key.intensity = .2 + lit * 1.7; moon.intensity = .55 - lit * .3; hemi.intensity = .35 + lit * .25;
+    // low and tense at first, then a crane up over the ridges for the reveal
+    const t = now / 1000, sway = reduce ? 0 : Math.sin(t * .21) * 4;
+    camera.position.set(sway, 9 + k * 34, 100);
+    camera.lookAt(sway * .3, 4 + k * 10 - (1 - k) * 4, -120);
+    camera.rotation.z += reduce ? 0 : Math.sin(t * .16) * .012;
+    renderer.render(scene, camera);
+  };
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
